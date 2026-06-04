@@ -2,6 +2,14 @@
   "name": "yt-sub-tool",
   "version": "1.0.0",
   "private": true,
+  "description": "Local YouTube subtitle extractor.",
+  "engines": {
+    "node": "20.x"
+  },
+  "scripts": {
+    "dev": "node server.js",
+    "smoke": "node scripts/smoke.js"
+  },
   "dependencies": {
     "youtube-transcript": "1.3.1"
   }
