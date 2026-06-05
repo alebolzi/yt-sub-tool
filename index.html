@@ -438,7 +438,10 @@
     if (e.key === 'Enter') extract();
   });
 
-  extractBtn.addEventListener('click', extract);
+ extractBtn.addEventListener('click', () => {
+  alert("CLICK FUNZIONA ✔");
+  extract();
+});
 
   async function extract() {
     const url = urlInput.value.trim();
