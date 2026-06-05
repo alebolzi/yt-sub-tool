@@ -441,60 +441,60 @@
  extractBtn.addEventListener('click', () => {
   alert("CLICK FUNZIONA ✔");
   extract();
+  alert("EXTRACT PARTITO ✔");
 });
 
-  async function extract() {
-    const url = urlInput.value.trim();
-    if (!url) {
-      setStatus('error', 'Inserisci un URL YouTube');
+async function extract() {
+  const url = urlInput.value.trim();
+
+  if (!url) {
+    setStatus('error', 'Inserisci un URL YouTube');
+    return;
+  }
+
+  setStatus('loading', 'Estrazione in corso...');
+  extractBtn.disabled = true;
+  hideOutput();
+
+  try {
+    const params = new URLSearchParams({ url, lang: selectedLang });
+    const res = await fetch(`${API_BASE}?${params}`);
+    const data = await res.json();
+
+    if (!res.ok) {
+      setStatus('error', data.error || 'Errore sconosciuto');
       return;
     }
 
-    setStatus('loading', 'Estrazione in corso...');
-    extractBtn.disabled = true;
-    hideOutput();
+    document.getElementById('metaId').textContent = data.video_id;
+    document.getElementById('metaLang').textContent = data.language;
 
-    try {
-      const params = new URLSearchParams({ url, lang: selectedLang });
-      const res = await fetch(`${API_BASE}?${params}`);
-      const text = await res.text();
-      console.log(text);
-
-      const data = JSON.parse(text);
-
-      if (!res.ok) {
-        setStatus('error', data.error || 'Errore sconosciuto');
-        return;
-      }
-
-      // Meta
-      document.getElementById('metaId').textContent = data.video_id;
-      document.getElementById('metaLang').textContent = data.language;
-      const transcriptType = data.is_generated === true
+    const transcriptType =
+      data.is_generated === true
         ? 'Auto-generato'
         : data.is_generated === false
           ? 'Manuale'
           : 'Disponibile';
-      document.getElementById('metaType').textContent = transcriptType;
-      document.getElementById('metaCount').textContent = data.snippet_count;
-      metaBar.classList.add('visible');
 
-      // Output
-      transcriptOutput.value = data.text;
-      emptyState.style.display = 'none';
-      outputArea.classList.add('visible');
+    document.getElementById('metaType').textContent = transcriptType;
+    document.getElementById('metaCount').textContent = data.snippet_count;
 
-      // Auto-copy
-      await copyToClipboard(data.text);
-      setStatus('success', `✓ Copiato in clipboard — ${data.snippet_count} snippet`);
+    metaBar.classList.add('visible');
 
-   catch (err) {
-     console.error(err);
-     setStatus('error', err.message);
-    } finally {
-      extractBtn.disabled = false;
-    }
+    transcriptOutput.value = data.text;
+    emptyState.style.display = 'none';
+    outputArea.classList.add('visible');
+
+    await copyToClipboard(data.text);
+    setStatus('success', `✓ Copiato — ${data.snippet_count} snippet`);
+
+  } catch (err) {
+    console.error(err);
+    setStatus('error', 'Errore di rete');
+  } finally {
+    extractBtn.disabled = false;
   }
+}
 
   function setStatus(type, msg) {
     statusBar.className = `status-bar visible ${type}`;
