@@ -454,7 +454,10 @@
     try {
       const params = new URLSearchParams({ url, lang: selectedLang });
       const res = await fetch(`${API_BASE}?${params}`);
-      const data = await res.json();
+      const text = await res.text();
+      console.log(text);
+
+      const data = JSON.parse(text);
 
       if (!res.ok) {
         setStatus('error', data.error || 'Errore sconosciuto');
@@ -482,8 +485,9 @@
       await copyToClipboard(data.text);
       setStatus('success', `✓ Copiato in clipboard — ${data.snippet_count} snippet`);
 
-    } catch (err) {
-      setStatus('error', 'Errore di rete. Controlla la connessione.');
+   catch (err) {
+     console.error(err);
+     setStatus('error', err.message);
     } finally {
       extractBtn.disabled = false;
     }
